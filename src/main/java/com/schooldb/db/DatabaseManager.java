@@ -8,7 +8,7 @@ public class DatabaseManager {
 
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/school_db";
     private static final String DB_USER = "postgres";
-    private static final String DB_PASSWORD = "";
+    private static final String DB_PASSWORD = "1234"; //change this
 
     // Schema Initialization
     private static final String SQL_CREATE_DEPARTMENTS = 
@@ -21,7 +21,8 @@ public class DatabaseManager {
     private static final String SQL_CREATE_STUDENTS =
         "CREATE TABLE IF NOT EXISTS students (" +
         "  student_id SERIAL PRIMARY KEY," +
-        "  student_name VARCHAR(100)," +
+        "  last_name VARCHAR(100)," +
+        "  first_name VARCHAR(100)," +
         "  address VARCHAR(100)," +
         "  date_of_birth DATE," +
         "  place_of_birth VARCHAR(100)" +
@@ -51,8 +52,7 @@ public class DatabaseManager {
 
     private static final String SQL_CREATE_SECTIONS =
         "CREATE TABLE IF NOT EXISTS sections (" +
-        "  section_id SERIAL PRIMARY KEY," + 
-        "  section_name VARCHAR(50)," +
+        "  section_name VARCHAR(50) PRIMARY KEY," +
         "  course_code VARCHAR(20)," +
         "  instructor_id INTEGER," +
         "  days VARCHAR(20)," +
@@ -78,15 +78,11 @@ public class DatabaseManager {
         "CREATE TABLE IF NOT EXISTS course_enlistments (" +
         "  enlistment_id SERIAL PRIMARY KEY," +
         "  enrollment_id INTEGER," +
-        "  course_code VARCHAR(20)," +
-        "  instructor_id INTEGER," +
-        "  section_id INTEGER," +
+        "  section_name VARCHAR(50)," +
         "  date_enlisted DATE DEFAULT CURRENT_DATE," +
         "  grade NUMERIC(3,2)," +
         "  FOREIGN KEY (enrollment_id) REFERENCES enrollments(enrollment_id)," +
-        "  FOREIGN KEY (course_code) REFERENCES courses(course_code)," +
-        "  FOREIGN KEY (instructor_id) REFERENCES instructors(instructor_id)," +
-        "  FOREIGN KEY (section_id) REFERENCES sections(section_id)" +
+        "  FOREIGN KEY (section_name) REFERENCES sections(section_name)" +
         ")";
 
     private static final String SQL_CREATE_PROGRAM_COURSES =
@@ -103,10 +99,10 @@ public class DatabaseManager {
         "SELECT * FROM students ORDER BY student_id";
 
     private static final String SQL_INSERT_STUDENT =
-        "INSERT INTO students (student_name, address, date_of_birth, place_of_birth) VALUES (?, ?, ?, ?)";
+        "INSERT INTO students (last_name, first_name, address, date_of_birth, place_of_birth) VALUES (?, ?, ?, ?, ?)";
 
     private static final String SQL_UPDATE_STUDENT =
-        "UPDATE students SET student_name=?, address=?, date_of_birth=?, place_of_birth=? WHERE student_id=?";
+        "UPDATE students SET last_name=?, first_name=?, address=?, date_of_birth=?, place_of_birth=? WHERE student_id=?";
 
     private static final String SQL_DELETE_STUDENT =
         "DELETE FROM students WHERE student_id=?";
@@ -127,7 +123,7 @@ public class DatabaseManager {
         "INSERT INTO enrollments (student_id, program_name, school_year, term) VALUES (?, ?, ?, ?)";
 
     private static final String SQL_INSERT_COURSE_ENLISTMENT =
-        "INSERT INTO course_enlistments (enrollment_id, course_code, instructor_id, section_id, grade) VALUES (?, ?, ?, ?, ?)";
+        "INSERT INTO course_enlistments (enrollment_id, course_code, instructor_id, section_name, grade) VALUES (?, ?, ?, ?, ?)";
 
     private static final String SQL_SELECT_ENROLLMENT_REPORT =
         "SELECT s.student_name, p.program_name, c.descriptive_title, sec.section_name, i.instructor_name, ce.grade " +
@@ -136,7 +132,7 @@ public class DatabaseManager {
         "JOIN students s ON e.student_id = s.student_id " +
         "JOIN programs p ON e.program_name = p.program_name " +
         "JOIN courses c ON ce.course_code = c.course_code " +
-        "JOIN sections sec ON ce.section_id = sec.section_id " +
+        "JOIN sections sec ON ce.section_name = sec.section_name " +
         "JOIN instructors i ON ce.instructor_id = i.instructor_id";
     
     
@@ -172,28 +168,28 @@ public class DatabaseManager {
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(SQL_SELECT_ALL_STUDENTS)) {
-
             while (rs.next()) {
                 rows.add(new Object[]{
                     rs.getInt("student_id"),
-                    rs.getString("first_name"),
                     rs.getString("last_name"),
-                    rs.getString("birthdate"),
-                    rs.getString("course")
+                    rs.getString("first_name"),
+                    rs.getString("address"),
+                    rs.getDate("date_of_birth"),
+                    rs.getString("place_of_birth")
                 });
             }
         }
         return rows;
     }
 
-    public void addStudent(String firstName, String lastName, String birthdate, String course)
-            throws SQLException {
+    public void addStudent(String lastName, String firstName, String address, String birthdate, String placeOfBirth) throws SQLException {
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_INSERT_STUDENT)) {
-            ps.setString(1, firstName);
-            ps.setString(2, lastName);
-            ps.setDate(3, Date.valueOf(birthdate));  //"YYYY-MM-DD"
-            ps.setString(4, course);
+            ps.setString(1, lastName);
+            ps.setString(2, firstName);
+            ps.setString(3, address);
+            ps.setDate(4, Date.valueOf(birthdate));
+            ps.setString(5, placeOfBirth);
             ps.executeUpdate();
         }
     }
@@ -219,28 +215,28 @@ public class DatabaseManager {
         }
     }
 
-    public List<Object[]> getAllSubjects() throws SQLException {
+    public List<Object[]> getAllCourses() throws SQLException {
         List<Object[]> rows = new ArrayList<>();
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(SQL_SELECT_ALL_COURSES)) {
-
             while (rs.next()) {
                 rows.add(new Object[]{
-                    rs.getInt("subject_id"),
-                    rs.getString("subject_name"),
-                    rs.getInt("units")
+                    rs.getString("course_code"),
+                    rs.getString("descriptive_title"),
+                    rs.getInt("credits")
                 });
             }
         }
         return rows;
     }
 
-    public void addSubject(String subjectName, int units) throws SQLException {
+    public void addCourse(String code, String title, int units) throws SQLException {
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_INSERT_COURSE)) {
-            ps.setString(1, subjectName);
-            ps.setInt(2, units);
+            ps.setString(1, code);
+            ps.setString(2, title);
+            ps.setInt(3, units);
             ps.executeUpdate();
         }
     }
@@ -263,14 +259,23 @@ public class DatabaseManager {
         }
     }
 
-    public void enrollStudent(int studentId, int subjectId, String semester, double grade)
-            throws SQLException {
+    public void enrollStudent(int studentId, String programName, String schoolYear, String term) throws SQLException {
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_INSERT_ENROLLMENT)) {
             ps.setInt(1, studentId);
-            ps.setInt(2, subjectId);
-            ps.setString(3, semester);
-            ps.setDouble(4, grade);
+            ps.setString(2, programName);
+            ps.setString(3, schoolYear);
+            ps.setString(4, term);
+            ps.executeUpdate();
+        }
+    }
+    
+    public void enlistInSection(int enrollmentId, String sectionName) throws SQLException {
+        String sql = "INSERT INTO course_enlistments (enrollment_id, section_name) VALUES (?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, enrollmentId);
+            ps.setString(2, sectionName);
             ps.executeUpdate();
         }
     }

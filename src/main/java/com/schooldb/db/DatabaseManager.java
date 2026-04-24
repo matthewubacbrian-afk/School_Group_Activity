@@ -10,9 +10,7 @@ public class DatabaseManager {
     private static final String DB_USER = "postgres";
     private static final String DB_PASSWORD = "1234"; // change this
 
-    // -------------------------------------------------------------------------
-    // Schema Initialization
-    // -------------------------------------------------------------------------
+    // Database schema setup
 
     private static final String SQL_CREATE_DEPARTMENTS = "CREATE TABLE IF NOT EXISTS college_departments (" +
             "  college_dept VARCHAR(100) PRIMARY KEY," +
@@ -88,9 +86,7 @@ public class DatabaseManager {
             "  FOREIGN KEY (course_code) REFERENCES courses(course_code)" +
             ")";
 
-    // -------------------------------------------------------------------------
-    // SQL Constants — Students
-    // -------------------------------------------------------------------------
+    // Student-related SQL queries
 
     private static final String SQL_SELECT_ALL_STUDENTS = "SELECT * FROM students ORDER BY student_id";
 
@@ -100,9 +96,7 @@ public class DatabaseManager {
 
     private static final String SQL_DELETE_STUDENT = "DELETE FROM students WHERE student_id=?";
 
-    // -------------------------------------------------------------------------
-    // SQL Constants — Courses
-    // -------------------------------------------------------------------------
+    // Course-related SQL queries
 
     private static final String SQL_SELECT_ALL_COURSES = "SELECT * FROM courses ORDER BY course_code";
 
@@ -112,9 +106,7 @@ public class DatabaseManager {
 
     private static final String SQL_DELETE_COURSE = "DELETE FROM courses WHERE course_code=?";
 
-    // -------------------------------------------------------------------------
-    // SQL Constants — Enrollments / Enlistments
-    // -------------------------------------------------------------------------
+    // Enrollment and enlistment SQL queries
 
     private static final String SQL_INSERT_ENROLLMENT = "INSERT INTO enrollments (student_id, program_name, school_year, term) VALUES (?, ?, ?, ?)";
 
@@ -130,9 +122,7 @@ public class DatabaseManager {
             "JOIN students s ON e.student_id = s.student_id " +
             "JOIN programs p ON e.program_name = p.program_name";
 
-    // -------------------------------------------------------------------------
-    // SQL Constants — Departments
-    // -------------------------------------------------------------------------
+    // Department SQL queries
 
     private static final String SQL_SELECT_ALL_DEPARTMENTS = "SELECT * FROM college_departments ORDER BY college_dept";
 
@@ -142,9 +132,7 @@ public class DatabaseManager {
 
     private static final String SQL_DELETE_DEPARTMENT = "DELETE FROM college_departments WHERE college_dept=?";
 
-    // -------------------------------------------------------------------------
-    // SQL Constants — Programs
-    // -------------------------------------------------------------------------
+    // Program SQL queries
 
     private static final String SQL_SELECT_ALL_PROGRAMS = "SELECT * FROM programs ORDER BY program_name";
 
@@ -154,9 +142,7 @@ public class DatabaseManager {
 
     private static final String SQL_DELETE_PROGRAM = "DELETE FROM programs WHERE program_name=?";
 
-    // -------------------------------------------------------------------------
-    // SQL Constants — Instructors
-    // -------------------------------------------------------------------------
+    // Instructor SQL queries
 
     private static final String SQL_SELECT_ALL_INSTRUCTORS = "SELECT * FROM instructors ORDER BY instructor_id";
 
@@ -166,9 +152,7 @@ public class DatabaseManager {
 
     private static final String SQL_DELETE_INSTRUCTOR = "DELETE FROM instructors WHERE instructor_id=?";
 
-    // -------------------------------------------------------------------------
-    // SQL Constants — Sections
-    // -------------------------------------------------------------------------
+    // Section SQL queries
 
     private static final String SQL_SELECT_ALL_SECTIONS = "SELECT * FROM sections ORDER BY section_name";
 
@@ -178,17 +162,13 @@ public class DatabaseManager {
 
     private static final String SQL_DELETE_SECTION = "DELETE FROM sections WHERE section_name=?";
 
-    // =========================================================================
-    // Connection
-    // =========================================================================
+    // Database connection methods
 
     public Connection getConnection() throws SQLException {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 
-    // =========================================================================
-    // Schema Init
-    // =========================================================================
+    // Schema initialization
 
     public void initializeSchema() throws SQLException {
         try (Connection conn = getConnection();
@@ -211,9 +191,7 @@ public class DatabaseManager {
         }
     }
 
-    // =========================================================================
-    // CRUD — Students
-    // =========================================================================
+    // CRUD operations for students
 
     public List<Object[]> getAllStudents() throws SQLException {
         List<Object[]> rows = new ArrayList<>();
@@ -269,9 +247,7 @@ public class DatabaseManager {
         }
     }
 
-    // =========================================================================
-    // CRUD — Courses
-    // =========================================================================
+    // CRUD operations for courses
 
     public List<Object[]> getAllCourses() throws SQLException {
         List<Object[]> rows = new ArrayList<>();
@@ -317,9 +293,7 @@ public class DatabaseManager {
         }
     }
 
-    // =========================================================================
-    // Enrollments / Enlistments
-    // =========================================================================
+    // Enrollment and enlistment operations
 
     public void enrollStudent(int studentId, String programName, String schoolYear, String term) throws SQLException {
         try (Connection conn = getConnection();
@@ -360,9 +334,7 @@ public class DatabaseManager {
         return rows;
     }
 
-    // =========================================================================
-    // CRUD — Departments
-    // =========================================================================
+    // CRUD operations for departments
 
     /** Returns all departments as [college_dept, department_head, dean]. */
     public List<Object[]> getAllDepartments() throws SQLException {
@@ -413,9 +385,7 @@ public class DatabaseManager {
         }
     }
 
-    // =========================================================================
-    // CRUD — Programs
-    // =========================================================================
+    // CRUD operations for programs
 
     /** Returns all programs as [program_name, college_dept]. */
     public List<Object[]> getAllPrograms() throws SQLException {
@@ -462,9 +432,7 @@ public class DatabaseManager {
         }
     }
 
-    // =========================================================================
-    // CRUD — Instructors
-    // =========================================================================
+    // CRUD operations for instructors
 
     /**
      * Returns all instructors as [instructor_id, instructor_name, college_dept].
@@ -512,9 +480,7 @@ public class DatabaseManager {
         }
     }
 
-    // =========================================================================
-    // CRUD — Sections
-    // =========================================================================
+    // CRUD operations for sections
 
     /**
      * Returns all sections as [section_name, course_code, instructor_id, days,

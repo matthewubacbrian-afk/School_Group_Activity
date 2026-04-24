@@ -119,9 +119,6 @@ public class DatabaseManager {
     private static final String SQL_DELETE_COURSE =
         "DELETE FROM courses WHERE course_code=?";
 
-    private static final String SQL_INSERT_ENROLLMENT =
-        "INSERT INTO enrollments (student_id, program_name, school_year, term) VALUES (?, ?, ?, ?)";
-
     private static final String SQL_INSERT_COURSE_ENLISTMENT =
         "INSERT INTO course_enlistments (enrollment_id, course_code, instructor_id, section_name, grade) VALUES (?, ?, ?, ?, ?)";
 

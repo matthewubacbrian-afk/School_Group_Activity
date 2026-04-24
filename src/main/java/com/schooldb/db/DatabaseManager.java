@@ -122,6 +122,45 @@ public class DatabaseManager {
             "JOIN students s ON e.student_id = s.student_id " +
             "JOIN programs p ON e.program_name = p.program_name";
 
+    private static final String SQL_SELECT_ALL_ENROLLMENTS = "SELECT e.enrollment_id, s.last_name, s.first_name, " +
+            "e.program_name, e.school_year, e.term, e.date_enrolled " +
+            "FROM enrollments e " +
+            "JOIN students s ON e.student_id = s.student_id " +
+            "ORDER BY e.enrollment_id";
+
+    private static final String SQL_SELECT_ENLISTMENTS_BY_ENROLLMENT = "SELECT ce.enlistment_id, ce.section_name, " +
+            "c.course_code, c.descriptive_title, i.instructor_name, sec.days, sec.time, sec.room, " +
+            "ce.date_enlisted, ce.grade " +
+            "FROM course_enlistments ce " +
+            "JOIN sections sec ON ce.section_name = sec.section_name " +
+            "JOIN courses c ON sec.course_code = c.course_code " +
+            "JOIN instructors i ON sec.instructor_id = i.instructor_id " +
+            "WHERE ce.enrollment_id = ? " +
+            "ORDER BY ce.enlistment_id";
+
+    private static final String SQL_UPDATE_ENLISTMENT_GRADE = "UPDATE course_enlistments SET grade = ? WHERE enlistment_id = ?";
+
+    private static final String SQL_SELECT_TRANSCRIPT = "SELECT e.term, e.school_year, c.course_code, c.descriptive_title, c.credits, "
+            +
+            "i.instructor_name, ce.grade " +
+            "FROM course_enlistments ce " +
+            "JOIN sections sec ON ce.section_name = sec.section_name " +
+            "JOIN courses c ON sec.course_code = c.course_code " +
+            "JOIN instructors i ON sec.instructor_id = i.instructor_id " +
+            "JOIN enrollments e ON ce.enrollment_id = e.enrollment_id " +
+            "WHERE e.student_id = ? " +
+            "ORDER BY e.school_year, e.term, c.course_code";
+
+    private static final String SQL_SELECT_CLASS_LIST = "SELECT s.student_id, s.last_name, s.first_name, c.credits, ce.grade, c.course_code "
+            +
+            "FROM course_enlistments ce " +
+            "JOIN sections sec ON ce.section_name = sec.section_name " +
+            "JOIN courses c ON sec.course_code = c.course_code " +
+            "JOIN enrollments e ON ce.enrollment_id = e.enrollment_id " +
+            "JOIN students s ON e.student_id = s.student_id " +
+            "WHERE sec.section_name = ? AND e.term = ? " +
+            "ORDER BY s.last_name, s.first_name";
+
     // Department SQL queries
 
     private static final String SQL_SELECT_ALL_DEPARTMENTS = "SELECT * FROM college_departments ORDER BY college_dept";
@@ -329,6 +368,104 @@ public class DatabaseManager {
                         rs.getString("descriptive_title"),
                         rs.getDouble("grade")
                 });
+            }
+        }
+        return rows;
+    }
+
+    public List<Object[]> getAllEnrollments() throws SQLException {
+        List<Object[]> rows = new ArrayList<>();
+        try (Connection conn = getConnection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(SQL_SELECT_ALL_ENROLLMENTS)) {
+            while (rs.next()) {
+                rows.add(new Object[] {
+                        rs.getInt("enrollment_id"),
+                        rs.getString("last_name"),
+                        rs.getString("first_name"),
+                        rs.getString("program_name"),
+                        rs.getString("school_year"),
+                        rs.getString("term"),
+                        rs.getDate("date_enrolled")
+                });
+            }
+        }
+        return rows;
+    }
+
+    public List<Object[]> getEnlistmentsByEnrollment(int enrollmentId) throws SQLException {
+        List<Object[]> rows = new ArrayList<>();
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(SQL_SELECT_ENLISTMENTS_BY_ENROLLMENT)) {
+            ps.setInt(1, enrollmentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    rows.add(new Object[] {
+                            rs.getInt("enlistment_id"),
+                            rs.getString("section_name"),
+                            rs.getString("course_code"),
+                            rs.getString("descriptive_title"),
+                            rs.getString("instructor_name"),
+                            rs.getString("days"),
+                            rs.getString("time"),
+                            rs.getString("room"),
+                            rs.getDate("date_enlisted"),
+                            rs.getDouble("grade")
+                    });
+                }
+            }
+        }
+        return rows;
+    }
+
+    public void updateEnlistmentGrade(int enlistmentId, double grade) throws SQLException {
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_ENLISTMENT_GRADE)) {
+            ps.setDouble(1, grade);
+            ps.setInt(2, enlistmentId);
+            ps.executeUpdate();
+        }
+    }
+
+    public List<Object[]> getTranscriptByStudent(int studentId) throws SQLException {
+        List<Object[]> rows = new ArrayList<>();
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(SQL_SELECT_TRANSCRIPT)) {
+            ps.setInt(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    rows.add(new Object[] {
+                            rs.getString("term"),
+                            rs.getString("school_year"),
+                            rs.getString("course_code"),
+                            rs.getString("descriptive_title"),
+                            rs.getInt("credits"),
+                            rs.getString("instructor_name"),
+                            rs.getDouble("grade")
+                    });
+                }
+            }
+        }
+        return rows;
+    }
+
+    public List<Object[]> getClassListBySection(String sectionName, String term) throws SQLException {
+        List<Object[]> rows = new ArrayList<>();
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(SQL_SELECT_CLASS_LIST)) {
+            ps.setString(1, sectionName);
+            ps.setString(2, term);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    rows.add(new Object[] {
+                            rs.getInt("student_id"),
+                            rs.getString("last_name"),
+                            rs.getString("first_name"),
+                            rs.getInt("credits"),
+                            rs.getDouble("grade"),
+                            rs.getString("course_code")
+                    });
+                }
             }
         }
         return rows;

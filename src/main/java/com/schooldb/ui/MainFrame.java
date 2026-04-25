@@ -27,15 +27,15 @@ public class MainFrame extends JFrame {
         tabs.setBackground(Color.decode("#2a2a2a"));
         tabs.setForeground(Color.decode("#F5E642"));
 
-        tabs.addTab("Students", new StudentPanel(dbManager));
+        //tabs.addTab("Students", new StudentPanel(dbManager));
         //tabs.addTab("Courses", new CoursePanel(dbManager));
         //tabs.addTab("Departments", new DepartmentPanel(dbManager));
         //tabs.addTab("Programs", new ProgramPanel(dbManager));
         //tabs.addTab("Instructors", new InstructorPanel(dbManager));
         //tabs.addTab("Sections", new SectionPanel(dbManager));
-        tabs.addTab("Enrollments", new EnrollmentPanel(dbManager));
-        //tabs.addTab("Transcript", new TranscriptPanel(dbManager));
-        //tabs.addTab("Class List", new ClassListPanel(dbManager));
+        //tabs.addTab("Enrollments", new EnrollmentPanel(dbManager));
+        tabs.addTab("Transcript", new TranscriptPanel(dbManager));
+        tabs.addTab("Class List", new ClassListPanel(dbManager));
 
         //pakidevelop muna ng commented lines, else error
         add(tabs);

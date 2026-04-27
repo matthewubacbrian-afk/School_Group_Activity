@@ -297,4 +297,126 @@ public class EnrollmentPanel extends JPanel {
         add(comboSection);
         add(fieldGrade);
     }
+
+    private void buildEnlistButtons(){
+        styleButton(btnEnlist, Color.decode("#F5E642"), Color.decode("#1a1a1a"));
+        styleButton(btnUpdateGrade, Color.decode("#3a3a20"), Color.decode("#F5E642"));
+        styleButton(btnClearEnlist, Color.decode("#2a2a2a"), Color.decode("#888860"));
+
+        btnEnlist.setBounds(10, 600, 100, 35);
+        btnUpdateGrade.setBounds(120, 600, 130, 35);
+        btnClearEnlist.setBounds(260, 600, 100, 35);
+
+        btnEnlist.addActionListener(e -> onEnlist());
+        btnUpdateGrade.addActionListener(e -> onUpdateGrade());
+        btnClearEnlist.addActionListener(e -> clearEnlistFields());
+
+        //Add All 3
+        add(btnEnlist());
+        add(btnUpdateGrade());
+        add(btnClearEnlist());
+    }
+
+    private void onEnlist() {
+
+        if (selectedEnrollmentId == -1) {
+            showError("Select an enrollment row first.");
+            return;
+        }
+
+        if (comboSection.getSelectedItem() == null) {
+            showError("No sections available.");
+            return;
+        }
+
+        if (fieldGrade.getText().isBlank()) {
+            showError("Grade is required.");
+            return;
+        }
+
+        try {
+            double grade = Double.parseDouble(fieldGrade.getText().trim());
+
+            if (grade < 1.0 || grade > 5.0) {
+                showError("Grade must be between 1.0 and 5.0.");
+                return;
+            }
+
+            String section = comboSection.getSelectedItem().toString();
+
+            dbManager.enlistInSection(
+                selectedEnrollmentId, section, grade
+            );
+
+            refreshEnlistTable();
+            clearEnlistFields();
+
+        } catch (NumberFormatException e) {
+            showError("Grade must be a valid number (e.g. 1.75)");
+        } catch (SQLException ex) {
+            showError("Failed to enlist: " + ex.getMessage());
+        }
+    }
+
+    private void onUpdateGrade() {
+
+        if (selectedEnlistmentId == -1) {
+            showError("Select an enlistment row to update.");
+            return;
+        }
+
+        if (fieldGrade.getText().isBlank()) {
+            showError("Grade is required.");
+            return;
+        }
+
+        try {
+            double grade = Double.parseDouble(fieldGrade.getText().trim());
+
+            if (grade < 1.0 || grade > 5.0) {
+                showError("Grade must be between 1.0 and 5.0.");
+                return;
+            }
+
+            dbManager.updateEnlistmentGrade(
+                selectedEnlistmentId, grade
+            );
+
+            refreshEnlistTable();
+            clearEnlistFields();
+
+        } catch (NumberFormatException e) {
+            showError("Grade must be a valid number.");
+        } catch (SQLException ex) {
+            showError("Failed to update: " + ex.getMessage());
+        }
+    }
+
+    private void refreshEnlistTable() {
+
+        enlistModel.setRowCount(0);
+
+        if (selectedEnrollmentId == -1) return;
+
+        try {
+            for (Object[] r :
+                dbManager.getEnlistmentsByEnrollment(selectedEnrollmentId)) {
+
+                enlistModel.addRow(r);
+            }
+
+        } catch (SQLException ex) {
+            showError("Failed to load enlistments.");
+        }
+    }
+
+    private void clearEnlistFields() {
+
+        comboSection.setSelectedIndex(0);
+        fieldGrade.setText("");
+        fieldEnrollId.setText("");
+
+        enlistTable.clearSelection();
+        selectedEnlistmentId = -1;
+    }
 }

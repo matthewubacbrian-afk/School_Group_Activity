@@ -102,6 +102,7 @@ public class EnrollmentPanel extends JPanel {
 
         setLayout(null);
         setBackground(Color.decode("#1a1a1a"));
+        setPreferredSize(new Dimension(750, 520));
 
         // Populate Combos
         try {
@@ -175,36 +176,36 @@ public class EnrollmentPanel extends JPanel {
         enrollTable.setSelectionForeground(Color.decode("#F5E642"));
 
         JScrollPane scroll = new JScrollPane(enrollTable);
-        scroll.setBounds(10, 10, 720, 140);
+        scroll.setBounds(10, 10, 720, 100);
         scroll.setBorder(BorderFactory.createLineBorder(Color.decode("#F5E642")));
 
         add(scroll);
     }
 
     private void buildEnrollForm() {
-        addLabel("Student:", 10, 163);
-        addLabel("Program:", 10, 198);
-        addLabel("School Year:", 10, 233);
-        addLabel("Term:", 10, 268);
+        addLabel("Student:", 10, 123);
+        addLabel("Program:", 10, 148);
+        addLabel("School Year:", 10, 173);
+        addLabel("Term:", 10, 198);
 
         // FIX: was calling setFont/setBackground/setForeground on "this" (the panel) instead of on each combo
         comboStudent.setFont(myFont);
         comboStudent.setBackground(Color.decode("#2a2a2a"));
         comboStudent.setForeground(Color.decode("#e0d060"));
-        comboStudent.setBounds(160, 160, 300, 28);
+        comboStudent.setBounds(160, 120, 300, 28);
 
         comboProgram.setFont(myFont);
         comboProgram.setBackground(Color.decode("#2a2a2a"));
         comboProgram.setForeground(Color.decode("#e0d060"));
-        comboProgram.setBounds(160, 195, 280, 28);
+        comboProgram.setBounds(160, 145, 280, 28);
 
         styleField(fieldSchoolYear);
-        fieldSchoolYear.setBounds(160, 230, 160, 28);
+        fieldSchoolYear.setBounds(160, 170, 160, 28);
 
         comboTerm.setFont(myFont);
         comboTerm.setBackground(Color.decode("#2a2a2a"));
         comboTerm.setForeground(Color.decode("#e0d060"));
-        comboTerm.setBounds(160, 265, 160, 28);
+        comboTerm.setBounds(160, 195, 160, 28);
 
         add(comboStudent);
         add(comboProgram);
@@ -217,9 +218,9 @@ public class EnrollmentPanel extends JPanel {
         styleButton(btnRefresh, Color.decode("#3a3a20"), Color.decode("#F5E642"));
         styleButton(btnClearEnroll, Color.decode("#2a2a2a"), Color.decode("#888860"));
 
-        btnEnroll.setBounds(10, 305, 100, 35);
-        btnRefresh.setBounds(120, 305, 100, 35);
-        btnClearEnroll.setBounds(230, 305, 100, 35);
+        btnEnroll.setBounds(10, 235, 100, 30);
+        btnRefresh.setBounds(120, 235, 100, 30);
+        btnClearEnroll.setBounds(230, 235, 100, 30);
 
         btnEnroll.addActionListener(e -> onEnroll());
         btnRefresh.addActionListener(e -> refreshEnrollTable());
@@ -297,28 +298,28 @@ public class EnrollmentPanel extends JPanel {
         enlistTable.setSelectionForeground(Color.decode("#F5E642"));
 
         JScrollPane scroll = new JScrollPane(enlistTable);
-        scroll.setBounds(10, 350, 720, 130);
+        scroll.setBounds(10, 280, 720, 100);
         scroll.setBorder(BorderFactory.createLineBorder(Color.decode("#F5E642")));
 
         add(scroll);
     }
 
     private void buildEnlistForm() {
-        addLabel("Enrollment ID:", 10, 493);
-        addLabel("Section:", 10, 528);
-        addLabel("Grade:", 10, 563);
+        addLabel("Enrollment ID:", 10, 393);
+        addLabel("Section:", 10, 418);
+        addLabel("Grade:", 10, 443);
 
         styleField(fieldEnrollId);
-        fieldEnrollId.setBounds(160, 490, 80, 28);
+        fieldEnrollId.setBounds(160, 390, 80, 28);
         fieldEnrollId.setEditable(false);
 
         comboSection.setFont(myFont);
         comboSection.setBackground(Color.decode("#2a2a2a"));
         comboSection.setForeground(Color.decode("#e0d060"));
-        comboSection.setBounds(160, 525, 200, 28);
+        comboSection.setBounds(160, 415, 200, 28);
 
         styleField(fieldGrade);
-        fieldGrade.setBounds(160, 560, 80, 28);
+        fieldGrade.setBounds(160, 440, 80, 28);
 
         add(fieldEnrollId);
         add(comboSection);
@@ -330,9 +331,9 @@ public class EnrollmentPanel extends JPanel {
         styleButton(btnUpdateGrade, Color.decode("#3a3a20"), Color.decode("#F5E642"));
         styleButton(btnClearEnlist, Color.decode("#2a2a2a"), Color.decode("#888860"));
 
-        btnEnlist.setBounds(10, 600, 100, 35);
-        btnUpdateGrade.setBounds(120, 600, 130, 35);
-        btnClearEnlist.setBounds(260, 600, 100, 35);
+        btnEnlist.setBounds(10, 480, 100, 30);
+        btnUpdateGrade.setBounds(120, 480, 130, 30);
+        btnClearEnlist.setBounds(260, 480, 100, 30);
 
         btnEnlist.addActionListener(e -> onEnlist());
         btnUpdateGrade.addActionListener(e -> onUpdateGrade());

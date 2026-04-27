@@ -16,10 +16,11 @@ public class StudentPanel extends JPanel {
     private final DefaultTableModel tableModel;
     private final JTable            table;
 
+    JTextField fieldLastName = new JTextField();
     JTextField fieldFirstName = new JTextField();
-    JTextField fieldLastName  = new JTextField();
+    JTextField fieldAddress = new JTextField();
     JTextField fieldBirthdate = new JTextField();
-    JTextField fieldCourse    = new JTextField();
+    JTextField fieldPlaceOfBirth = new JTextField();
 
     JButton btnAdd    = new JButton("Add");
     JButton btnUpdate = new JButton("Update");
@@ -29,7 +30,7 @@ public class StudentPanel extends JPanel {
     StudentPanel(DatabaseManager dbManager) {
         this.dbManager  = dbManager;
         this.tableModel = new DefaultTableModel(
-            new String[]{"ID", "First Name", "Last Name", "Birthdate", "Course"}, 0) {
+            new String[]{"ID","Last Name","First Name","Address","Date of Birth","Place of Birth"}, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
         this.table = new JTable(tableModel);
@@ -67,20 +68,23 @@ public class StudentPanel extends JPanel {
     }
 
     void buildForm() {
-        addLabel("First Name:",              10, 218);
-        addLabel("Last Name:",               10, 253);
-        addLabel("Birthdate (YYYY-MM-DD):",  10, 288);
-        addLabel("Course:",                  10, 323);
+        addLabel("Last Name:", 10, 218);
+        addLabel("First Name:", 10, 253);    
+        addLabel("Address:", 10, 288);
+        addLabel("Date of Birth (YYYY-MM-DD):", 10, 323);
+        addLabel("Place of Birth:", 10, 358);
 
-        styleField(fieldFirstName); fieldFirstName.setBounds(230, 215, 200, 28);
-        styleField(fieldLastName);  fieldLastName.setBounds(230, 250, 200, 28);
-        styleField(fieldBirthdate); fieldBirthdate.setBounds(230, 285, 200, 28);
-        styleField(fieldCourse);    fieldCourse.setBounds(230, 320, 200, 28);
+        styleField(fieldLastName); fieldLastName.setBounds(230, 215, 200, 28);
+        styleField(fieldFirstName);  fieldFirstName.setBounds(230, 250, 200, 28);
+        styleField(fieldAddress);    fieldAddress.setBounds(230, 285, 200, 28);
+        styleField(fieldBirthdate); fieldBirthdate.setBounds(230, 320, 200, 28);
+        styleField(fieldPlaceOfBirth); fieldPlaceOfBirth.setBounds(230, 355, 200, 28);
 
-        add(fieldFirstName);
         add(fieldLastName);
+        add(fieldFirstName);
+        add(fieldAddress);
         add(fieldBirthdate);
-        add(fieldCourse);
+        add(fieldPlaceOfBirth);
     }
 
     void buildButtons() {
@@ -89,10 +93,10 @@ public class StudentPanel extends JPanel {
         styleButton(btnDelete, Color.decode("#3a1a1a"), Color.decode("#cc6666"));
         styleButton(btnClear,  Color.decode("#2a2a2a"), Color.decode("#888860"));
 
-        btnAdd.setBounds(10,  365, 100, 40);
-        btnUpdate.setBounds(120, 365, 100, 40);
-        btnDelete.setBounds(230, 365, 100, 40);
-        btnClear.setBounds(340,  365, 100, 40);
+        btnAdd.setBounds(10, 400, 100, 40);
+        btnUpdate.setBounds(120, 400, 100, 40);
+        btnDelete.setBounds(230, 400, 100, 40);
+        btnClear.setBounds(340, 400, 100, 40);
 
         btnAdd.addActionListener(e    -> onAdd());
         btnUpdate.addActionListener(e -> onUpdate());
@@ -106,10 +110,11 @@ public class StudentPanel extends JPanel {
         if (!validateInputs()) return;
         try {
             dbManager.addStudent(
-                fieldFirstName.getText().trim(),
                 fieldLastName.getText().trim(),
+                fieldFirstName.getText().trim(),
+                fieldAddress.getText().trim(),
                 fieldBirthdate.getText().trim(),
-                fieldCourse.getText().trim()
+                fieldPlaceOfBirth.getText().trim()
             );
             refreshTable();
             clearFields();
@@ -124,11 +129,12 @@ public class StudentPanel extends JPanel {
         if (!validateInputs()) return;
         int id = (int) tableModel.getValueAt(row, 0);
         try {
-            dbManager.updateStudent(id,
-                fieldFirstName.getText().trim(),
+           dbManager.updateStudent(id,
                 fieldLastName.getText().trim(),
+                fieldFirstName.getText().trim(),
+                fieldAddress.getText().trim(),
                 fieldBirthdate.getText().trim(),
-                fieldCourse.getText().trim()
+                fieldPlaceOfBirth.getText().trim()
             );
             refreshTable();
             clearFields();
@@ -156,10 +162,11 @@ public class StudentPanel extends JPanel {
     void onRowSelected() {
         int row = table.getSelectedRow();
         if (row < 0) return;
-        fieldFirstName.setText((String) tableModel.getValueAt(row, 1));
-        fieldLastName.setText((String)  tableModel.getValueAt(row, 2));
-        fieldBirthdate.setText((String) tableModel.getValueAt(row, 3));
-        fieldCourse.setText((String)    tableModel.getValueAt(row, 4));
+        fieldLastName.setText(tableModel.getValueAt(row,1).toString());
+        fieldFirstName.setText(tableModel.getValueAt(row,2).toString());
+        fieldAddress.setText(tableModel.getValueAt(row,3).toString());
+        fieldBirthdate.setText(tableModel.getValueAt(row,4).toString());
+        fieldPlaceOfBirth.setText(tableModel.getValueAt(row,5).toString());
     }
 
     void refreshTable() {
@@ -173,8 +180,8 @@ public class StudentPanel extends JPanel {
     }
 
     boolean validateInputs() {
-        if (fieldFirstName.getText().isBlank() || fieldLastName.getText().isBlank()
-                || fieldBirthdate.getText().isBlank() || fieldCourse.getText().isBlank()) {
+        if (fieldLastName.getText().isBlank() || fieldFirstName.getText().isBlank() || fieldAddress.getText().isBlank()    
+                || fieldBirthdate.getText().isBlank() || fieldPlaceOfBirth.getText().isBlank()) {
             showError("All fields are required.");
             return false;
         }
@@ -182,10 +189,11 @@ public class StudentPanel extends JPanel {
     }
 
     void clearFields() {
-        fieldFirstName.setText("");
         fieldLastName.setText("");
+        fieldFirstName.setText("");
+        fieldAddress.setText("");
         fieldBirthdate.setText("");
-        fieldCourse.setText("");
+        fieldPlaceOfBirth.setText("");
         table.clearSelection();
     }
 

@@ -21,7 +21,7 @@ public class EnrollmentPanel extends JPanel {
 
     //Bottom table - Enlistments
     private final DefaultTableModel enlistModel;
-    private final JTable enlisTable;
+    private final JTable enlistTable;
     private int selectedEnlistmentId = -1;
 
     //Enrollment Form
@@ -126,7 +126,7 @@ public class EnrollmentPanel extends JPanel {
         // Bottom table row click → fill grade for update
         enlistTable.getSelectionModel().addListSelectionListener(e->{
             if (!e.getValueIsAdjusting()){
-                int row = enlisTable.getSelectedRow();
+                int row = enlistTable.getSelectedRow();
                 if (row < 0) return;
 
                 selectedEnlistmentId = (int) enlistModel.getValueAt(row, 0);
@@ -155,15 +155,12 @@ public class EnrollmentPanel extends JPanel {
         enrollTable.setGridColor(Color.decode("#555533"));
         enrollTable.setForeground(Color.decode("#e0d060"));
 
-        enrollTable.setSelectionBackground(
-            Color.decode("#3a3a20"));
-        enrollTable.setSelectionForeground(
-            Color.decode("#F5E642"));
+        enrollTable.setSelectionBackground(Color.decode("#3a3a20"));
+        enrollTable.setSelectionForeground(Color.decode("#F5E642"));
 
         JScrollPane scroll = new JScrollPane(enrollTable);
         scroll.setBounds(10, 10, 720, 140);
-        scroll.setBorder(BorderFactory.createLineBorder(
-            Color.decode("#F5E642")));
+        scroll.setBorder(BorderFactory.createLineBorder(Color.decode("#F5E642")));
 
         add(scroll);
     }
@@ -267,5 +264,37 @@ public class EnrollmentPanel extends JPanel {
 
         enlistModel.setRowCount(0);
         fieldEnrollId.setText("");
+    }
+
+    private void buildEnlistTable(){
+        //enlistTable — same styling as enrollTable
+        JScrollPane scroll = new JScrollPane(enlistTable);
+        scroll.setBounds(10, 350, 720, 130);
+        scroll.setBorder(BorderFactory.createLineBorder(Color.decode("#F5E642")));
+
+        add(scroll);
+    }
+
+    private void buildEnlistForm(){
+
+        addLabel("Enrollment ID:", 10, 493);
+        addLabel("Section:", 10, 528);
+        addLabel("Grade:", 10, 563);
+
+        styleField(fieldEnrollId);
+        fieldEnrollId.setBounds(160, 490, 80, 28);
+        fieldEnrollId.setEditable(false);
+
+        comboSection.setFont(myFont);
+        comboSection.setBackground(Color.decode("#2a2a2a"));
+        comboSection.setForeground(Color.decode("#e0d060"));
+        comboSection.setBounds(160, 525, 200, 28);
+
+        styleField(fieldGrade);
+        fieldGrade.setBounds(160, 560, 80, 28);
+
+        add(fieldEnrollId);
+        add(comboSection);
+        add(fieldGrade);
     }
 }

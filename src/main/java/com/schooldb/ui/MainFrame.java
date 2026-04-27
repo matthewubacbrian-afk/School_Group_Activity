@@ -13,7 +13,7 @@ public class MainFrame extends JFrame {
         setTitle("School Database Manager");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        setSize(800, 620);
+        setSize(800, 670);
 
         setLayout(null);
         setLocationRelativeTo(null);
@@ -21,23 +21,23 @@ public class MainFrame extends JFrame {
 
         JTabbedPane tabs = new JTabbedPane();
 
-        tabs.setBounds(10, 10, 760, 560);
+        tabs.setBounds(10, 10, 760, 610);
 
         tabs.setFont(myFont);
         tabs.setBackground(Color.decode("#2a2a2a"));
         tabs.setForeground(Color.decode("#F5E642"));
 
-        //tabs.addTab("Students", new StudentPanel(dbManager));
-        //tabs.addTab("Courses", new CoursePanel(dbManager));
-        //tabs.addTab("Departments", new DepartmentPanel(dbManager));
-        //tabs.addTab("Programs", new ProgramPanel(dbManager));
-        //tabs.addTab("Instructors", new InstructorPanel(dbManager));
-        //tabs.addTab("Sections", new SectionPanel(dbManager));
-        //tabs.addTab("Enrollments", new EnrollmentPanel(dbManager));
+        // FIX: uncommented all tabs so all panels are accessible
+        tabs.addTab("Students", new StudentPanel(dbManager));
+        tabs.addTab("Courses", new CoursePanel(dbManager));
+        tabs.addTab("Departments", new DepartmentPanel(dbManager));
+        tabs.addTab("Programs", new ProgramPanel(dbManager));
+        tabs.addTab("Instructors", new InstructorPanel(dbManager));
+        tabs.addTab("Sections", new SectionPanel(dbManager));
+        tabs.addTab("Enrollments", new EnrollmentPanel(dbManager));
         tabs.addTab("Transcript", new TranscriptPanel(dbManager));
         tabs.addTab("Class List", new ClassListPanel(dbManager));
 
-        //pakidevelop muna ng commented lines, else error
         add(tabs);
         setVisible(true);
     }

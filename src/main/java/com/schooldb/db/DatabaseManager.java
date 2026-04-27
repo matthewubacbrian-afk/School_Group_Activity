@@ -8,7 +8,7 @@ public class DatabaseManager {
 
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/school_db";
     private static final String DB_USER = "postgres";
-    private static final String DB_PASSWORD = "1234"; // change this
+    private static final String DB_PASSWORD = "@matthew."; // change this
 
     // Database schema setup
 
@@ -78,6 +78,12 @@ public class DatabaseManager {
             "  FOREIGN KEY (section_name) REFERENCES sections(section_name)" +
             ")";
 
+    private static final String SQL_CREATE_SUBJECTS = "CREATE TABLE IF NOT EXISTS subjects (" +
+            "  id SERIAL PRIMARY KEY," +
+            "  name VARCHAR(200)," +
+            "  units INTEGER" +
+            ")";
+
     private static final String SQL_CREATE_PROGRAM_COURSES = "CREATE TABLE IF NOT EXISTS program_courses (" +
             "  program_name VARCHAR(100)," +
             "  course_code VARCHAR(20)," +
@@ -105,6 +111,16 @@ public class DatabaseManager {
     private static final String SQL_UPDATE_COURSE = "UPDATE courses SET descriptive_title=?, credits=? WHERE course_code=?";
 
     private static final String SQL_DELETE_COURSE = "DELETE FROM courses WHERE course_code=?";
+
+    // Subject-related SQL queries
+
+    private static final String SQL_SELECT_ALL_SUBJECTS = "SELECT * FROM subjects ORDER BY id";
+
+    private static final String SQL_INSERT_SUBJECT = "INSERT INTO subjects (name, units) VALUES (?, ?)";
+
+    private static final String SQL_UPDATE_SUBJECT = "UPDATE subjects SET name=?, units=? WHERE id=?";
+
+    private static final String SQL_DELETE_SUBJECT = "DELETE FROM subjects WHERE id=?";
 
     // Enrollment and enlistment SQL queries
 
@@ -154,11 +170,11 @@ public class DatabaseManager {
     private static final String SQL_SELECT_CLASS_LIST = "SELECT s.student_id, s.last_name, s.first_name, c.credits, ce.grade, c.course_code "
             +
             "FROM course_enlistments ce " +
-            "JOIN sections sec ON ce.section_name = sec.section_name " +
+            "JOIN sections sec ON trim(sec.section_name) = trim(ce.section_name) " +
             "JOIN courses c ON sec.course_code = c.course_code " +
             "JOIN enrollments e ON ce.enrollment_id = e.enrollment_id " +
             "JOIN students s ON e.student_id = s.student_id " +
-            "WHERE sec.section_name = ? AND e.term = ? " +
+            "WHERE trim(sec.section_name) = trim(?) AND lower(trim(e.term)) = lower(trim(?)) " +
             "ORDER BY s.last_name, s.first_name";
 
     // Department SQL queries
@@ -216,6 +232,7 @@ public class DatabaseManager {
             stmt.execute(SQL_CREATE_DEPARTMENTS);
             stmt.execute(SQL_CREATE_STUDENTS);
             stmt.execute(SQL_CREATE_COURSES);
+            stmt.execute(SQL_CREATE_SUBJECTS);
             stmt.execute(SQL_CREATE_PROGRAMS);
             stmt.execute(SQL_CREATE_INSTRUCTORS);
             stmt.execute(SQL_CREATE_PROGRAM_COURSES);
@@ -366,7 +383,7 @@ public class DatabaseManager {
                         rs.getString("first_name"),
                         rs.getString("last_name"),
                         rs.getString("descriptive_title"),
-                        rs.getDouble("grade")
+                        rs.getObject("grade") // FIX: preserve NULL
                 });
             }
         }
@@ -410,7 +427,7 @@ public class DatabaseManager {
                             rs.getString("time"),
                             rs.getString("room"),
                             rs.getDate("date_enlisted"),
-                            rs.getDouble("grade")
+                            rs.getObject("grade") // FIX: preserve NULL
                     });
                 }
             }
@@ -441,7 +458,7 @@ public class DatabaseManager {
                             rs.getString("descriptive_title"),
                             rs.getInt("credits"),
                             rs.getString("instructor_name"),
-                            rs.getDouble("grade")
+                            rs.getObject("grade") // FIX: was rs.getDouble() — NULL became 0.0, breaking INC detection
                     });
                 }
             }
@@ -462,7 +479,7 @@ public class DatabaseManager {
                             rs.getString("last_name"),
                             rs.getString("first_name"),
                             rs.getInt("credits"),
-                            rs.getDouble("grade"),
+                            rs.getObject("grade"), // FIX: was rs.getDouble() — NULL became 0.0, breaking INC detection
                             rs.getString("course_code")
                     });
                 }
@@ -473,7 +490,6 @@ public class DatabaseManager {
 
     // CRUD operations for departments
 
-    /** Returns all departments as [college_dept, department_head, dean]. */
     public List<Object[]> getAllDepartments() throws SQLException {
         List<Object[]> rows = new ArrayList<>();
         try (Connection conn = getConnection();
@@ -500,10 +516,6 @@ public class DatabaseManager {
         }
     }
 
-    /**
-     * college_dept is the PK and cannot be changed; only head and dean are
-     * updatable.
-     */
     public void updateDepartment(String collegeDept, String departmentHead, String dean) throws SQLException {
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_DEPARTMENT)) {
@@ -524,7 +536,6 @@ public class DatabaseManager {
 
     // CRUD operations for programs
 
-    /** Returns all programs as [program_name, college_dept]. */
     public List<Object[]> getAllPrograms() throws SQLException {
         List<Object[]> rows = new ArrayList<>();
         try (Connection conn = getConnection();
@@ -549,9 +560,6 @@ public class DatabaseManager {
         }
     }
 
-    /**
-     * program_name is the PK and cannot be changed; only college_dept is updatable.
-     */
     public void updateProgram(String programName, String collegeDept) throws SQLException {
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_PROGRAM)) {
@@ -571,9 +579,6 @@ public class DatabaseManager {
 
     // CRUD operations for instructors
 
-    /**
-     * Returns all instructors as [instructor_id, instructor_name, college_dept].
-     */
     public List<Object[]> getAllInstructors() throws SQLException {
         List<Object[]> rows = new ArrayList<>();
         try (Connection conn = getConnection();
@@ -619,10 +624,6 @@ public class DatabaseManager {
 
     // CRUD operations for sections
 
-    /**
-     * Returns all sections as [section_name, course_code, instructor_id, days,
-     * time, room].
-     */
     public List<Object[]> getAllSections() throws SQLException {
         List<Object[]> rows = new ArrayList<>();
         try (Connection conn = getConnection();
@@ -656,9 +657,6 @@ public class DatabaseManager {
         }
     }
 
-    /**
-     * section_name is the PK and cannot be changed; all other fields are updatable.
-     */
     public void updateSection(String sectionName, String courseCode, int instructorId,
             String days, String time, String room) throws SQLException {
         try (Connection conn = getConnection();
@@ -677,6 +675,51 @@ public class DatabaseManager {
         try (Connection conn = getConnection();
                 PreparedStatement ps = conn.prepareStatement(SQL_DELETE_SECTION)) {
             ps.setString(1, sectionName);
+            ps.executeUpdate();
+        }
+    }
+
+    // CRUD operations for subjects
+
+    public List<Object[]> getAllSubjects() throws SQLException {
+        List<Object[]> rows = new ArrayList<>();
+        try (Connection conn = getConnection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(SQL_SELECT_ALL_SUBJECTS)) {
+            while (rs.next()) {
+                rows.add(new Object[] {
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getInt("units")
+                });
+            }
+        }
+        return rows;
+    }
+
+    public void addSubject(String name, int units) throws SQLException {
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(SQL_INSERT_SUBJECT)) {
+            ps.setString(1, name);
+            ps.setInt(2, units);
+            ps.executeUpdate();
+        }
+    }
+
+    public void updateSubject(int id, String name, int units) throws SQLException {
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_SUBJECT)) {
+            ps.setString(1, name);
+            ps.setInt(2, units);
+            ps.setInt(3, id);
+            ps.executeUpdate();
+        }
+    }
+
+    public void deleteSubject(int id) throws SQLException {
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(SQL_DELETE_SUBJECT)) {
+            ps.setInt(1, id);
             ps.executeUpdate();
         }
     }

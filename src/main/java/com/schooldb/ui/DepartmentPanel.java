@@ -6,9 +6,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.SQLException;
-import java.util.List;
 
 public class DepartmentPanel extends JPanel {
+
     Font myFont = new Font("Arial", Font.PLAIN, 14);
 
     private final DatabaseManager dbManager;
@@ -24,12 +24,12 @@ public class DepartmentPanel extends JPanel {
     JButton btnDelete = new JButton("Delete");
     JButton btnClear = new JButton("Clear");
 
-    public DepartmentPanel(DatabaseManager dbManager){
+    public DepartmentPanel(DatabaseManager dbManager) {
         this.dbManager = dbManager;
 
         tableModel = new DefaultTableModel(
             new String[]{
-                "College Dept","Department Head","Dean"
+                "College Dept", "Department Head", "Dean"
             }, 0) {
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -54,8 +54,7 @@ public class DepartmentPanel extends JPanel {
         refreshTable();
     }
 
-    private void buildTable(){
-
+    private void buildTable() {
         table.setFont(myFont);
         table.setRowHeight(24);
 
@@ -77,12 +76,11 @@ public class DepartmentPanel extends JPanel {
         add(scroll);
     }
 
-    private void buildForm(){
-        
-        addLabel("College Depet: ", 10, 218);
-        addLabel("Department Head: ", 10, 253);
-        addLabel("Dean: ", 10, 288);
-        
+    private void buildForm() {
+        addLabel("College Dept:", 10, 218); // FIX: minor typo "Depet" -> "Dept"
+        addLabel("Department Head:", 10, 253);
+        addLabel("Dean:", 10, 288);
+
         styleField(fieldDept);
         fieldDept.setBounds(180, 215, 240, 28);
 
@@ -90,22 +88,21 @@ public class DepartmentPanel extends JPanel {
         fieldHead.setBounds(180, 250, 240, 28);
 
         styleField(fieldDean);
-        fieldDean.setBounds(180, 285,240,28);
+        fieldDean.setBounds(180, 285, 240, 28);
 
         add(fieldDept);
         add(fieldHead);
         add(fieldDean);
     }
 
-    private void buildButtons(){
-
+    private void buildButtons() {
         styleButton(btnAdd, Color.decode("#F5E642"), Color.decode("#1a1a1a"));
         styleButton(btnUpdate, Color.decode("#3a3a20"), Color.decode("#F5E642"));
         styleButton(btnDelete, Color.decode("#3a1a1a"), Color.decode("#cc6666"));
         styleButton(btnClear, Color.decode("#2a2a2a"), Color.decode("#888860"));
 
-        btnAdd.setBounds(10, 355, 100, 40);
-        btnUpdate.setBounds(120, 355, 100, 40);
+        btnAdd.setBounds(10, 335, 100, 40);
+        btnUpdate.setBounds(120, 335, 100, 40);
         btnDelete.setBounds(230, 335, 100, 40);
         btnClear.setBounds(340, 335, 100, 40);
 
@@ -120,13 +117,12 @@ public class DepartmentPanel extends JPanel {
         add(btnClear);
     }
 
-    private void onAdd(){
-
-        if (!validateInputs()){
+    private void onAdd() {
+        if (!validateInputs()) {
             return;
         }
 
-        try{
+        try {
             dbManager.addDepartment(
                 fieldDept.getText().trim(),
                 fieldHead.getText().trim(),
@@ -136,23 +132,22 @@ public class DepartmentPanel extends JPanel {
             refreshTable();
             clearFields();
 
-        } catch (SQLException ex){
+        } catch (SQLException ex) {
             showError(ex.getMessage());
         }
     }
 
-    private void onUpdate(){
-
-        if (table.getSelectedRow() < 0){
+    private void onUpdate() {
+        if (table.getSelectedRow() < 0) {
             showError("Select a department to update.");
             return;
         }
 
-        if (!validateInputs()){
+        if (!validateInputs()) {
             return;
         }
 
-        try{
+        try {
             dbManager.updateDepartment(
                 fieldDept.getText().trim(),
                 fieldHead.getText().trim(),
@@ -162,14 +157,13 @@ public class DepartmentPanel extends JPanel {
             refreshTable();
             clearFields();
 
-        } catch (SQLException ex){
+        } catch (SQLException ex) {
             showError(ex.getMessage());
         }
     }
 
-    private void onDelete(){
-
-        if (table.getSelectedRow() < 0){
+    private void onDelete() {
+        if (table.getSelectedRow() < 0) {
             showError("Select a department to delete.");
             return;
         }
@@ -177,39 +171,35 @@ public class DepartmentPanel extends JPanel {
         int confirm = JOptionPane.showConfirmDialog(
             this,
             "Delete this department?",
-            "Comfirm",
-            JOptionPane.YES_NO_CANCEL_OPTION
+            "Confirm",
+            JOptionPane.YES_NO_OPTION // FIX: was YES_NO_CANCEL_OPTION; YES_NO matches the pattern of all other panels
         );
-        
-        if (confirm != JOptionPane.YES_OPTION){
+
+        if (confirm != JOptionPane.YES_OPTION) {
             return;
         }
 
-        try{
-            dbManager.deleteDepartment(
-                fieldDept.getText().trim()
-            );
+        try {
+            dbManager.deleteDepartment(fieldDept.getText().trim());
 
             refreshTable();
             clearFields();
 
-        } catch (SQLException ex){
+        } catch (SQLException ex) {
             showError(ex.getMessage());
         }
     }
 
     private void onRowSelected() {
-
         int row = table.getSelectedRow();
         if (row < 0) return;
 
-        fieldDept.setText(tableModel.getValueAt(row,0).toString());
-        fieldHead.setText(tableModel.getValueAt(row,1).toString());
-        fieldDean.setText(tableModel.getValueAt(row,2).toString());
+        fieldDept.setText(tableModel.getValueAt(row, 0).toString());
+        fieldHead.setText(tableModel.getValueAt(row, 1).toString());
+        fieldDean.setText(tableModel.getValueAt(row, 2).toString());
     }
 
     private void refreshTable() {
-
         tableModel.setRowCount(0);
 
         try {
@@ -222,7 +212,6 @@ public class DepartmentPanel extends JPanel {
     }
 
     private boolean validateInputs() {
-
         if (fieldDept.getText().isBlank() ||
             fieldHead.getText().isBlank() ||
             fieldDean.getText().isBlank()) {
@@ -235,11 +224,39 @@ public class DepartmentPanel extends JPanel {
     }
 
     private void clearFields() {
-
         fieldDept.setText("");
         fieldHead.setText("");
         fieldDean.setText("");
 
         table.clearSelection();
+    }
+
+    // FIX: added all missing helper methods that were called throughout the class
+    private void addLabel(String text, int x, int y) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(myFont);
+        lbl.setForeground(Color.decode("#cccc66"));
+        lbl.setBounds(x, y, 150, 25);
+        add(lbl);
+    }
+
+    private void styleField(JTextField field) {
+        field.setFont(myFont);
+        field.setBackground(Color.decode("#2a2a2a"));
+        field.setForeground(Color.decode("#e0d060"));
+        field.setCaretColor(Color.decode("#F5E642"));
+        field.setBorder(BorderFactory.createLineBorder(Color.decode("#555533")));
+    }
+
+    private void styleButton(JButton btn, Color bg, Color fg) {
+        btn.setFont(myFont);
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setFocusable(false);
+        btn.setBorder(BorderFactory.createLineBorder(Color.decode("#555533")));
+    }
+
+    private void showError(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

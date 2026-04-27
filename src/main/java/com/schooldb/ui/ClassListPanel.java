@@ -49,9 +49,14 @@ public class ClassListPanel extends JPanel {
             showError("Error: " + ex.getMessage());
         }
 
+        if (comboSection.getItemCount() > 0) {
+            comboSection.setSelectedIndex(0);
+        }
+
         comboTerm.addItem("1st Sem");
         comboTerm.addItem("2nd Sem");
         comboTerm.addItem("Summer");
+        comboTerm.setSelectedIndex(0);
 
         buildFilterRow();
         buildInfoBlock();
@@ -181,8 +186,8 @@ public class ClassListPanel extends JPanel {
             return;
         }
 
-        String section = comboSection.getSelectedItem().toString();
-        String term = comboTerm.getSelectedItem().toString();
+        String section = comboSection.getSelectedItem().toString().trim();
+        String term = comboTerm.getSelectedItem().toString().trim();
 
         try {
             for (Object[] row : dbManager.getAllSections()) {

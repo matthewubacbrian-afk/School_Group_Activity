@@ -6,10 +6,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.SQLException;
-import java.util.List;
 
-public class ProgramPanel extends Jpanel {
-    
+public class ProgramPanel extends JPanel { // FIX: was "Jpanel"
+
     Font myFont = new Font("Arial", Font.PLAIN, 14);
 
     private final DatabaseManager dbManager;
@@ -17,19 +16,47 @@ public class ProgramPanel extends Jpanel {
     private final JTable table;
 
     JTextField fieldProgram = new JTextField();
-    JComboBox comboDept = new JComboBox<>();
+    JComboBox<String> comboDept = new JComboBox<>();
 
     JButton btnAdd = new JButton("Add");
     JButton btnUpdate = new JButton("Update");
     JButton btnDelete = new JButton("Delete");
     JButton btnClear = new JButton("Clear");
 
-    public ProgramPanel(DatabaseManager dbManager){
+    private void addLabel(String text, int x, int y) {
+        JLabel lbl = new JLabel(text);
+        lbl.setFont(myFont);
+        lbl.setForeground(Color.decode("#cccc66"));
+        lbl.setBounds(x, y, 150, 25);
+        add(lbl);
+    }
+
+    private void styleField(JTextField field) {
+        field.setFont(myFont);
+        field.setBackground(Color.decode("#2a2a2a"));
+        field.setForeground(Color.decode("#e0d060"));
+        field.setCaretColor(Color.decode("#F5E642"));
+        field.setBorder(BorderFactory.createLineBorder(Color.decode("#555533")));
+    }
+
+    private void styleButton(JButton btn, Color bg, Color fg) {
+        btn.setFont(myFont);
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setFocusable(false);
+        btn.setBorder(BorderFactory.createLineBorder(Color.decode("#555533")));
+    }
+
+    private void showError(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public ProgramPanel(DatabaseManager dbManager) {
         this.dbManager = dbManager;
 
         tableModel = new DefaultTableModel(
             new String[]{"Program Name", "College Dept"}, 0
-        ){
+        ) {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
@@ -43,18 +70,18 @@ public class ProgramPanel extends Jpanel {
         buildTable();
         buildForm();
         buildButtons();
-        
-        //Populate comboDept after building UI
-        try{
-            for (Object[] r : dbManager.getAllDepartments()){
+
+        // Populate comboDept after building UI
+        try {
+            for (Object[] r : dbManager.getAllDepartments()) {
                 comboDept.addItem(r[0].toString());
             }
-        } catch (SQLException ex){
+        } catch (SQLException ex) {
             showError("Failed to load departments.");
         }
 
         table.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()){
+            if (!e.getValueIsAdjusting()) {
                 onRowSelected();
             }
         });
@@ -63,7 +90,6 @@ public class ProgramPanel extends Jpanel {
     }
 
     private void buildTable() {
-
         table.setFont(myFont);
         table.setRowHeight(24);
 
@@ -80,14 +106,12 @@ public class ProgramPanel extends Jpanel {
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBounds(10, 10, 720, 190);
-        scroll.setBorder(BorderFactory.createLineBorder(
-            Color.decode("#F5E642")));
+        scroll.setBorder(BorderFactory.createLineBorder(Color.decode("#F5E642")));
 
         add(scroll);
     }
 
     private void buildForm() {
-
         addLabel("Program Name:", 10, 218);
         addLabel("College Dept:", 10, 253);
 
@@ -104,7 +128,6 @@ public class ProgramPanel extends Jpanel {
     }
 
     private void buildButtons() {
-
         styleButton(btnAdd, Color.decode("#F5E642"), Color.decode("#1a1a1a"));
         styleButton(btnUpdate, Color.decode("#3a3a20"), Color.decode("#F5E642"));
         styleButton(btnDelete, Color.decode("#3a1a1a"), Color.decode("#cc6666"));
@@ -127,7 +150,6 @@ public class ProgramPanel extends Jpanel {
     }
 
     private void onAdd() {
-
         if (fieldProgram.getText().isBlank()) {
             showError("Program Name is required.");
             return;
@@ -148,7 +170,6 @@ public class ProgramPanel extends Jpanel {
     }
 
     private void onUpdate() {
-
         if (table.getSelectedRow() < 0) {
             showError("Select a program to update.");
             return;
@@ -174,7 +195,6 @@ public class ProgramPanel extends Jpanel {
     }
 
     private void onDelete() {
-
         if (table.getSelectedRow() < 0) {
             showError("Select a program to delete.");
             return;
@@ -190,9 +210,7 @@ public class ProgramPanel extends Jpanel {
         if (confirm != JOptionPane.YES_OPTION) return;
 
         try {
-            dbManager.deleteProgram(
-                fieldProgram.getText().trim()
-            );
+            dbManager.deleteProgram(fieldProgram.getText().trim());
 
             refreshTable();
             clearFields();
@@ -203,21 +221,14 @@ public class ProgramPanel extends Jpanel {
     }
 
     private void onRowSelected() {
-
         int row = table.getSelectedRow();
         if (row < 0) return;
 
-        fieldProgram.setText(
-            tableModel.getValueAt(row, 0).toString()
-        );
-
-        comboDept.setSelectedItem(
-            tableModel.getValueAt(row, 1).toString()
-        );
+        fieldProgram.setText(tableModel.getValueAt(row, 0).toString());
+        comboDept.setSelectedItem(tableModel.getValueAt(row, 1).toString());
     }
 
     private void refreshTable() {
-
         tableModel.setRowCount(0);
 
         try {
@@ -230,10 +241,8 @@ public class ProgramPanel extends Jpanel {
     }
 
     private void clearFields() {
-
         fieldProgram.setText("");
-        comboDept.setSelectedIndex(0);
-
+        if (comboDept.getItemCount() > 0) comboDept.setSelectedIndex(0);
         table.clearSelection();
     }
 }

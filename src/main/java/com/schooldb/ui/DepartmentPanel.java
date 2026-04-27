@@ -8,7 +8,7 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
 
-public class DepartmentPanel {
+public class DepartmentPanel extends JPanel {
     Font myFont = new Font("Arial", Font.PLAIN, 14);
 
     private final DatabaseManager dbManager;
@@ -112,7 +112,7 @@ public class DepartmentPanel {
         btnAdd.addActionListener(e -> onAdd());
         btnUpdate.addActionListener(e -> onUpdate());
         btnDelete.addActionListener(e -> onDelete());
-        btnClear.addActionListener(e -> onFields());
+        btnClear.addActionListener(e -> clearFields());
 
         add(btnAdd);
         add(btnUpdate);
